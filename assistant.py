@@ -49,13 +49,20 @@ def build_chain(llm):
 
 
 def make_llm():
-    """Build the chat model, reading secrets only from the environment."""
+    """Build the chat model, reading secrets only from the environment.
+
+    Supports any OpenAI-compatible endpoint (e.g. OpenRouter at
+    https://openrouter.ai/api/v1) via the OPENAI_BASE_URL environment variable.
+    """
     load_dotenv()
     if not os.getenv("OPENAI_API_KEY"):
         raise SystemExit(
             "OPENAI_API_KEY is not set. Copy .env.example to .env and fill it in."
         )
-    return ChatOpenAI(model=os.getenv("OPENAI_MODEL", "gpt-5-mini"))
+    return ChatOpenAI(
+        model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+        base_url=os.getenv("OPENAI_BASE_URL"),
+    )
 
 
 def ask(question, history, chain):
