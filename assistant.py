@@ -53,17 +53,35 @@ def make_llm():
 
     Supports any OpenAI-compatible endpoint (e.g. OpenRouter at
     https://openrouter.ai/api/v1) via the OPENAI_BASE_URL environment variable.
+
+    The API key is read explicitly and passed straight to the client so the SDK
+    does not silently fall back to reading OPENAI_API_KEY itself. Without this,
+    an OpenAI key (sk-proj-...) left in the environment would be sent to
+    OpenRouter and rejected with 401.
     """
     load_dotenv()
-    if not os.getenv("OPENAI_API_KEY"):
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
         raise SystemExit(
             "OPENAI_API_KEY is not set. Copy .env.example to .env and fill it in."
         )
-    return ChatOpenAI(
-        model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
-        base_url=os.getenv("OPENAI_BASE_URL"),
-    )
+    base_url = os.getenv("OPENAI_BASE_URL")
+    model = os.getenv("OPENAI_MODEL", "gpt-5-mini")
 
+    default_headers = {}
+    if base_url and "openrouter.ai" in base_url:
+        # OpenRouter recommends these headers; harmless for other endpoints.
+        default_headers = {
+            "HTTP-Referer": "https://langchain-qa-assistant.example.com",
+            "X-OpenRouter-Title": "LangChain Q&A Assistant",
+        }
+
+    return ChatOpenAI(
+        model=model,
+        base_url=base_url or None,
+        api_key=api_key,
+        default_headers=default_headers or None,
+    )
 
 def ask(question, history, chain):
     """Ask one question and return (answer, updated_history).
