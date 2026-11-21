@@ -1,4 +1,5 @@
 <img width="1366" height="728" alt="langchain-qa-assist" src="https://github.com/user-attachments/assets/05199669-e27f-47bf-938e-2a1ae751c553" />
+
 # LangChain Q&A Assistant
 
 A basic Python assistant that accepts questions and returns answers using LangChain and an OpenAI-compatible API (OpenAI or OpenRouter). It keeps a short conversation history, handles empty input and API errors gracefully, and never hard-codes your API key.
