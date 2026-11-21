@@ -8,6 +8,8 @@ Run with:  pytest
 import httpx
 import openai
 import pytest
+from langchain_core.messages import AIMessage
+from langchain_core.runnables import RunnableLambda
 
 import assistant
 
@@ -110,7 +112,6 @@ def test_failed_turn_is_not_stored_in_history():
     request = httpx.Request("POST", "https://api.openai.com/v1/chat/completions")
     exc = openai.RateLimitError(
         "rate limited",
-        request=request,
         body=None,
         response=httpx.Response(429, request=request),
     )
@@ -132,7 +133,6 @@ def _request():
 def test_authentication_error_message():
     exc = openai.AuthenticationError(
         "invalid API key",
-        request=_request(),
         body=None,
         response=httpx.Response(401, request=_request()),
     )
@@ -144,7 +144,6 @@ def test_authentication_error_message():
 def test_rate_limit_error_message():
     exc = openai.RateLimitError(
         "rate limited",
-        request=_request(),
         body=None,
         response=httpx.Response(429, request=_request()),
     )
@@ -154,7 +153,7 @@ def test_rate_limit_error_message():
 
 
 def test_api_connection_error_message():
-    exc = openai.APIConnectionError("network down", request=_request())
+    exc = openai.APIConnectionError(message="network down", request=_request())
     answer, history = assistant.ask("q", [], _RaisingChain(exc))
     assert "Connection error" in answer
     assert history == []
@@ -163,7 +162,6 @@ def test_api_connection_error_message():
 def test_api_status_error_message():
     exc = openai.APIStatusError(
         "server error",
-        request=_request(),
         body=None,
         response=httpx.Response(500, request=_request()),
     )
@@ -192,6 +190,6 @@ def test_missing_api_key_raises_clear_message(monkeypatch):
 
 def test_build_chain_uses_injected_model():
     # build_chain accepts any runnable/llm and builds the pipeline.
-    fake_llm = _RecordingChain()  # not a real LLM, just to prove injection works
+    fake_llm = RunnableLambda(lambda pv: AIMessage(content="from fake model"))
     chain = assistant.build_chain(fake_llm)
-    assert chain is not None
+    assert chain.invoke({"history": [], "question": "hi"}) == "from fake model"

@@ -29,10 +29,12 @@ pip install -r requirements.txt
 # 4. Copy the example env file and add your real key
 copy .env.example .env
 # Edit .env and replace OPENAI_API_KEY=your-key-here with your real key.
-# Optionally set OPENAI_MODEL and OPENAI_BASE_URL (e.g. OpenRouter).
+# .env.example is OpenAI-first: leave OPENAI_BASE_URL unset for the OpenAI API.
+# OpenRouter lines are commented out - uncomment only if you want to route
+# through OpenRouter instead, and use your sk-or-v1... key there.
 ```
 
-`.env` is git-ignored and never committed. `.env.example` is committed with placeholder values only — **no real key is committed**.
+`.env` is git-ignored and never committed. `.env.example` is committed with placeholder values only — **no real key is committed**. Anyone who pastes a normal OpenAI key into an OpenRouter-configured `.env` will get a 401, so keep the two setups separate.
 
 ## How to run
 
@@ -49,6 +51,18 @@ pytest
 ```
 
 The test suite (`tests/test_assistant.py`) is deterministic and never calls the OpenAI API — it replaces the model with stand-in chains.
+
+## Endpoints and transparency
+
+The brief targets the OpenAI API. OpenRouter support (setting `OPENAI_BASE_URL` to
+`https://openrouter.ai/api/v1`) is a reasonable extension I added on top of that;
+it is **not** part of the OpenAI brief. `run_test_questions.py` records the
+endpoint used (model and base URL) in `docs/test_evidence.md`, so the evidence
+states exactly which endpoint produced each answer.
+
+Whether a gateway such as OpenRouter is acceptable for this assignment is not
+something I can decide — please ask your instructor whether using a gateway is
+OK before running the evidence against OpenRouter.
 
 ## File table
 

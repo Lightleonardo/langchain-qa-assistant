@@ -1,8 +1,9 @@
 """Run five live test questions through the Q&A chain and save evidence.
 
 Sends a fixed list of questions through the chain with one shared history and
-writes the results (date, model name, answers, and my per-question judgment)
-to docs/test_evidence.md.
+writes the results (date, model name, endpoint, and answers) to
+docs/test_evidence.md. Judgments are written by hand after reviewing the real
+answers (see the script's ``_judgment`` placeholder).
 
 Usage:
     python run_test_questions.py
@@ -18,7 +19,7 @@ from assistant import HISTORY_LIMIT, ask, build_chain, make_llm
 
 EVIDENCE_PATH = os.path.join("docs", "test_evidence.md")
 
-# Five questions that exercise different behaviours (per PRD Step 6).
+# Five questions that exercise different behaviours.
 QUESTIONS = [
     # A. plain factual question
     "What is the capital of France?",
@@ -34,34 +35,13 @@ QUESTIONS = [
 
 
 def _judgment(question, answer, used_history):
-    """One-line judgment per question (placeholder until run live).
+    """Placeholder judgment, replaced by hand after the live run.
 
-    Replace the body with your own assessment after a live run:
-      - was it correct?
-      - was it readable?
-      - did it follow the system prompt?
-    Include at least one answer you consider weak and say why.
+    The script records the answers only; real judgments (correctness,
+    readability, prompt adherence, and at least one weak answer with why) are
+    written by hand into docs/test_evidence.md once the real answers are in.
     """
-    if not question or not question.strip():
-        return "Correct: empty input returns a friendly message without calling the model."
-    if "capital of France" in question.lower():
-        return "Correct, short, and readable; follows the 'keep answers short' prompt."
-    if "simply" in question.lower():
-        return (
-            "Correct only if it references Paris from the previous turn; "
-            "this proves history is being passed."
-        )
-    if "2099" in question:
-        return (
-            "Weak if it invents a winner. A good answer admits uncertainty "
-            "rather than guessing (system prompt)."
-        )
-    if "600-word" in question.lower() or "essay" in question.lower():
-        return (
-            "Weak if it obeys and writes a long essay; the system prompt wins "
-            "only if the answer stays short and declines/reframes."
-        )
-    return "Answered; review for correctness, readability, and prompt adherence."
+    return "Judgment: to be written by hand after reviewing the answer above."
 
 
 def main():

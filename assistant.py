@@ -106,7 +106,7 @@ def ask(question, history, chain):
     except openai.RateLimitError as exc:
         return f"Rate limit error: {exc}. You may be out of quota or credit.", history
     except openai.APIConnectionError as exc:
-        return f"Connection error: {exc}. Check your network connection.", history
+        return f"Connection error: {getattr(exc, 'message', exc)}. Check your network connection.", history
     except openai.APIStatusError as exc:
         return f"API error (status {getattr(exc, 'status_code', 'unknown')}): {exc}.", history
 
