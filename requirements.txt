@@ -1,5 +1,6 @@
 langchain-core>=1.7
 langchain-openai>=1.7,<2
+openai>=3.0,<4
 python-dotenv>=1.0
 pytest>=8
 httpx>=0.24
